@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Fleet Driver App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-blue: #347CDB;
+            --secondary-green: #28a745;
+            --background-light: #f0f2f5;
+            --card-background: #fff;
+            --text-dark: #333;
+            --text-medium: #555;
+            --text-light: #777;
+            --border-light: #eee;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-subtle: rgba(0, 0, 0, 0.05);
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --danger-bg: #f8d7da;
+            --danger-text: #721c24;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --info-bg: #d1ecf1;
+            --info-text: #0c5460;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-light);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+        }
+        .header {
+            background-color: var(--card-background);
+            color: var(--text-dark);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px var(--shadow-light);
+            height: 60px;
+            box-sizing: border-box;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        .header .logout-btn {
+            background-color: var(--primary-blue);
+            color: var(--card-background);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 2px 4px var(--shadow-subtle);
+            transition: transform 0.2s ease-in-out;
+        }
+        .header .logout-btn:hover {
+            transform: translateY(-2px);
+        }
+        .driver-app-container {
+            padding: 20px;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+            padding: 20px;
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-medium);
+        }
+        .card p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        .map-card {
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        #map-container {
+            height: 500px;
+            background-color: #e9e9e9;
+            border-radius: 6px;
+        }
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .info-section h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 0 10px;
+            color: var(--text-dark);
+        }
+        .info-section p {
+            font-size: 14px;
+            margin: 5px 0;
+            color: var(--text-medium);
+        }
+        .info-section span {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        .status-tag {
+            background-color: var(--info-bg);
+            color: var(--info-text);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .progress-bar-container {
+            background-color: var(--border-light);
+            border-radius: 5px;
+            height: 10px;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            background-color: var(--primary-blue);
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--shadow-subtle);
+            transition: all 0.2s ease-in-out;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+        }
+        .primary-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--text-medium);
+            border: 1px solid var(--border-light);
+            box-shadow: none;
+        }
+        .danger-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .success-btn {
+            background-color: var(--secondary-green);
+            color: white;
+            border: none;
+        }
+        .call-btn {
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            background-color: var(--secondary-green);
+            color: white;
+            text-align: center;
+            box-shadow: 0 4-6px var(--shadow-subtle);
+            transition: transform 0.2s ease-in-out;
+        }
+        .call-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+        }
+        .emergency-card {
+             background-color: #eaf6e9;
+        }
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .toast-message.show {
+            opacity: 1;
+        }
+        .route-completed {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation-name: animatetop;
+            animation-duration: 0.4s
+        }
+        @keyframes animatetop {
+            from {top:-300px; opacity:0}
+            to {top:0; opacity:1}
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-body label, .modal-body select, .modal-body input {
+            display: block;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .modal-body input, .modal-body select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .modal-body button {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Driver App</h1>
+        <button class="logout-btn">Logout</button>
+    </div>
+    <div class="driver-app-container">
+        <div class="main-grid">
+            <div class="card map-card">
+                <h2>Your Delivery Route</h2>
+                <p>Follow the highlighted path to your next delivery</p>
+                <div id="map-container"></div>
+            </div>
+            <div class="right-column">
+                <div class="card info-section">
+                    <h2>Today's Route</h2>
+                    <p>Route: <span>Vijayawada → Tanuku</span></p>
+                    <p id="progress-text">Progress: <span>0/8</span></p>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="card info-section">
+                    <div id="next-stop-info">
+                        <h2 id="next-stop-title">Next Stop</h2>
+                        <h3 id="next-stop-name"></h3>
+                        <p id="next-stop-details"></p>
+                        <button class="action-btn primary-btn" id="navigate-btn">Navigate to Stop</button>
+                    </div>
+                    <div id="route-completed-info" class="route-completed" style="display: none;">
+                        <h2>Route Completed!</h2>
+                        <p>All deliveries have been successfully marked.</p>
+                        <button class="action-btn primary-btn" id="reset-route-btn">Reset Route</button>
+                    </div>
+                </div>
+                <div class="card info-section">
+                    <h2>Quick Actions</h2>
+                    <div class="button-group">
+                        <button class="action-btn primary-btn" id="mark-delivered-btn">Mark Delivered</button>
+                        <button class="action-btn secondary-btn" id="report-delay-btn">Report Delay</button>
+                        <button class="action-btn danger-btn" id="report-breakdown-btn">Report Breakdown</button>
+                    </div>
+                </div>
+                <div class="card info-section emergency-card">
+                    <h2>Emergency Support</h2>
+                    <p style="margin-bottom: 10px;">24/7 dispatch and emergency assistance</p>
+                    <button class="call-btn">Call Dispatch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast-message"></div>
+
+    <div id="delayModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('delayModal')">&times;</span>
+            <h2>Report Delay</h2>
+            <div class="modal-body">
+                <form id="delayForm">
+                    <label for="delay-reason">Reason for Delay:</label>
+                    <select id="delay-reason" name="delay-reason">
+                        <option value="traffic">Traffic</option>
+                        <option value="construction">Construction</option>
+                        <option value="weather">Weather Conditions</option>
+                        <option value="vehicle">Vehicle Issues</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <label for="delay-time">Estimated Delay Time (minutes):</label>
+                    <input type="number" id="delay-time" name="delay-time" min="1" required>
+                    <button type="submit" class="action-btn primary-btn">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="breakdownModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('breakdownModal')">&times;</span>
+            <h2>Report Breakdown</h2>
+            <div class="modal-body">
+                <form id="breakdownForm">
+                    <label for="broken-part">Broken Part:</label>
+                    <select id="broken-part" name="broken-part">
+                        <option value="engine">Engine</option>
+                        <option value="tire">Tire</option>
+                        <option value="brakes">Brakes</option>
+                        <option value="transmission">Transmission</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <label for="repair-time">Estimated Repair Time (hours):</label>
+                    <input type="number" id="repair-time" name="repair-time" min="0.5" step="0.5" required>
+                    <button type="submit" class="action-btn danger-btn">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const stops = [
+          { name: 'Vijayawada (Start)', coords: [16.5062, 80.6480] },
+          { name: 'Gandhi Hill', coords: [16.5220, 80.6320] },
+          { name: 'Kanaka Durga Varadhi', coords: [16.5100, 80.6486] },
+          { name: 'Undavalli Caves', coords: [16.3870, 80.5410] },
+          { name: 'Ramavarappadu Junction', coords: [16.5105, 80.6725] },
+          { name: 'Relangi (West Godavari)', coords: [16.7500, 81.4100] },
+          { name: 'Tanuku (Town Center)', coords: [16.7366, 81.7009] },
+          { name: 'Sri Venkateswara Temple (Tanuku)', coords: [16.7350, 81.7020] }
+        ];
+
+        let currentStopIndex = 0;
+        let map;
+        let polylineLayer;
+        let markerLayers = [];
+
+        // UI elements
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const nextStopTitle = document.getElementById('next-stop-title');
+        const nextStopName = document.getElementById('next-stop-name');
+        const nextStopDetails = document.getElementById('next-stop-details');
+        const markDeliveredBtn = document.getElementById('mark-delivered-btn');
+        const reportDelayBtn = document.getElementById('report-delay-btn');
+        const reportBreakdownBtn = document.getElementById('report-breakdown-btn');
+        const navigateBtn = document.getElementById('navigate-btn');
+        const toast = document.getElementById('toast');
+        const nextStopInfo = document.getElementById('next-stop-info');
+        const routeCompletedInfo = document.getElementById('route-completed-info');
+        const resetRouteBtn = document.getElementById('reset-route-btn');
+        const logoutBtn = document.querySelector('.logout-btn');
+
+        // Modal elements
+        const delayModal = document.getElementById('delayModal');
+        const breakdownModal = document.getElementById('breakdownModal');
+        const delayForm = document.getElementById('delayForm');
+        const breakdownForm = document.getElementById('breakdownForm');
+
+        function showToast(message) {
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function updateUI() {
+            const progress = currentStopIndex;
+            const totalStops = stops.length;
+            const progressPercentage = (progress / totalStops) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.querySelector('span').innerText = `${progress}/${totalStops}`;
+
+            if (currentStopIndex >= totalStops) {
+                nextStopInfo.style.display = 'none';
+                routeCompletedInfo.style.display = 'flex';
+                markDeliveredBtn.disabled = true;
+                reportDelayBtn.disabled = true;
+                reportBreakdownBtn.disabled = true;
+                return;
+            }
+
+            nextStopInfo.style.display = 'block';
+            routeCompletedInfo.style.display = 'none';
+            markDeliveredBtn.disabled = false;
+            reportDelayBtn.disabled = false;
+            reportBreakdownBtn.disabled = false;
+
+            if (currentStopIndex === 0) {
+                nextStopTitle.innerText = "Current Location";
+                nextStopName.innerText = stops[0].name;
+                nextStopDetails.innerText = "Starting point of your route.";
+                navigateBtn.innerText = "Navigate to First Stop";
+                navigateBtn.classList.remove('success-btn');
+                navigateBtn.classList.add('primary-btn');
+            } else {
+                nextStopTitle.innerText = "Next Stop";
+                const nextStop = stops[currentStopIndex];
+                const prevStop = stops[currentStopIndex - 1];
+                nextStopName.innerText = nextStop.name;
+                const distance = L.latLng(prevStop.coords).distanceTo(L.latLng(nextStop.coords));
+                nextStopDetails.innerText = `~${(distance / 1000).toFixed(1)} km`;
+                navigateBtn.innerText = "Navigate to Stop";
+                navigateBtn.classList.remove('success-btn');
+                navigateBtn.classList.add('primary-btn');
+                
+                // Redraw map with updated polyline and markers
+                map.removeLayer(polylineLayer);
+                const remainingCoords = stops.slice(currentStopIndex).map(s => s.coords);
+                polylineLayer = L.polyline(remainingCoords, {
+                    color: 'blue',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(map);
+
+                // Remove previous marker
+                if (markerLayers.length > 0) {
+                    map.removeLayer(markerLayers.shift());
+                }
+
+                map.panTo(nextStop.coords);
+            }
+        }
+
+        function initMap() {
+            map = L.map('map-container').fitBounds(stops.map(s => s.coords));
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            stops.forEach(stop => {
+                const marker = L.marker(stop.coords)
+                               .addTo(map)
+                               .bindPopup(stop.name);
+                markerLayers.push(marker);
+            });
+
+            const latlngs = stops.map(stop => stop.coords);
+            polylineLayer = L.polyline(latlngs, {
+                color: 'blue',
+                weight: 4,
+                opacity: 0.7
+            }).addTo(map);
+
+            updateUI();
+        }
+
+        function markDelivered() {
+            if (currentStopIndex < stops.length) {
+                currentStopIndex++;
+                updateUI();
+                showToast("Delivery marked as delivered!");
+                navigateBtn.innerText = "Stop Completed";
+                navigateBtn.classList.remove('primary-btn');
+                navigateBtn.classList.add('success-btn');
+            }
+        }
+        
+        function resetRoute() {
+            currentStopIndex = 0;
+            markerLayers.forEach(layer => map.removeLayer(layer));
+            markerLayers = [];
+            if (polylineLayer) {
+                map.removeLayer(polylineLayer);
+            }
+            initMap();
+        }
+
+        // Event Listeners
+        markDeliveredBtn.addEventListener('click', markDelivered);
+        reportDelayBtn.addEventListener('click', () => {
+            openModal('delayModal');
+        });
+        reportBreakdownBtn.addEventListener('click', () => {
+            openModal('breakdownModal');
+        });
+        navigateBtn.addEventListener('click', () => {
+            showToast("Navigation initiated to next stop.");
+        });
+        resetRouteBtn.addEventListener('click', resetRoute);
+        
+        logoutBtn.addEventListener('click', () => {
+            window.location.href = "d-login.html";
+        });
+
+        delayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const reason = document.getElementById('delay-reason').value;
+            const time = document.getElementById('delay-time').value;
+            closeModal('delayModal');
+            showToast(`Delay of ${time} minutes reported due to ${reason}.`);
+            // Here you would send this data to a server
+        });
+
+        breakdownForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const part = document.getElementById('broken-part').value;
+            const time = document.getElementById('repair-time').value;
+            closeModal('breakdownModal');
+            showToast(`Breakdown of ${part} reported. Repair time: ${time} hours.`);
+            // Here you would send this data to a server
+        });
+
+        window.onload = initMap;
+    </script>
+</body>
+</html>

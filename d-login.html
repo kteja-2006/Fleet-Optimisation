@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .message-box {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, top 0.3s ease;
+            max-width: 80%;
+            text-align: center;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+            top: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#c8e4fc] to-[#a1d2f6] min-h-screen flex items-center justify-center p-4">
+
+    <!-- Back to Home Link -->
+    <a href="index.html" class="absolute top-4 left-4 md:top-6 md:left-6 flex items-center text-gray-700 hover:text-gray-900 transition-colors duration-200">
+        <!-- SVG Arrow Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to Home
+    </a>
+
+    <!-- Login Card Container -->
+    <div class="w-full max-w-lg mx-auto relative">
+        <div id="message-box" class="message-box"></div>
+        <!-- Login Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10 text-center">
+            
+            <!-- Driver Login Header -->
+            <h1 class="text-2xl font-semibold text-gray-800 flex items-center justify-center mb-1">
+                <!-- SVG Icon for Login -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2 text-gray-600">
+                    <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.149.351l-.548.878a.75.75 0 01-1.352.091l-.842-.672a.75.75 0 00-.916.278 8.746 8.746 0 01-1.396 2.535.75.75 0 01-1.64.093l-.887-.97A.75.75 0 0010.86 19.5l-.547.878a.75.75 0 01-1.352.091l-.842-.672a.75.75 0 00-.916.278 8.746 8.746 0 01-1.396 2.535.75.75 0 01-1.64.093l-.888-.97a.75.75 0 00-.916.278A8.746 8.746 0 013 22.105l-.548.878a.75.75 0 01-1.352.091l-.842-.672a.75.75 0 00-.916.278A8.746 8.746 0 013 22.105z" clip-rule="evenodd" />
+                </svg>
+                Driver Login
+            </h1>
+            <p class="text-gray-500 mb-6">Access your delivery route information</p>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="space-y-4">
+                    <!-- Driver ID Input -->
+                    <div>
+                        <label for="driver-id" class="block text-left text-sm font-medium text-gray-700">Driver ID</label>
+                        <input type="text" id="driver-id" name="driver-id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3483f1] focus:border-[#3483f1] sm:text-sm" placeholder="DRV001">
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-left text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3483f1] focus:border-[#3483f1] sm:text-sm" placeholder="Enter your password">
+                    </div>
+
+                    <!-- Sign In Button -->
+                    <button id="sign-in-btn" type="submit" class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#3483f1] hover:bg-[#2a6fce] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3483f1] transition-colors duration-200">
+                        <!-- SVG Lock Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 3h10.5a2.25 2.25 0 012.25 2.25v2.25a2.25 2.25 0 01-2.25 2.25H6.75a2.25 2.25 0 01-2.25-2.25v-2.25a2.25 2.25 0 012.25-2.25z" />
+                        </svg>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const driverIdInput = document.getElementById('driver-id');
+        const passwordInput = document.getElementById('password');
+        const messageBox = document.getElementById('message-box');
+
+        // Function to show a message
+        function showMessage(message) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add event listener for form submission
+        document.getElementById('loginForm').addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent the default form submission
+
+            const driverId = driverIdInput.value;
+            const password = passwordInput.value;
+
+            // Simple validation to check for non-empty fields
+            if (driverId.trim() !== '' && password.trim() !== '') {
+                // If validation passes, redirect to the dashboard page
+                window.location.href = 'd-dashboard.html';
+            } else {
+                // Show a message if validation fails
+                let message = 'Please enter both a Driver ID and a password.';
+                showMessage(message);
+            }
+        });
+    </script>
+</body>
+</html>

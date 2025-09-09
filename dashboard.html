@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiTrack Pro Manager Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-blue: #347CDB;
+            --secondary-green: #28a745;
+            --background-light: #f0f2f5;
+            --card-background: #fff;
+            --text-dark: #333;
+            --text-medium: #555;
+            --text-light: #777;
+            --border-light: #eee;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-subtle: rgba(0, 0, 0, 0.05);
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --danger-bg: #f8d7da;
+            --danger-text: #721c24;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --info-bg: #d1ecf1;
+            --info-text: #0c5460;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-light);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+        }
+        .header {
+            background-color: var(--primary-blue);
+            color: var(--card-background);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px var(--shadow-light);
+            height: 60px;
+            box-sizing: border-box;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        .header .logout-btn {
+            background-color: var(--card-background);
+            color: var(--primary-blue);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .dashboard-container {
+            padding: 20px;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow-light);
+            padding: 20px;
+        }
+        .map-card {
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .map-card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-medium);
+        }
+        .map-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        #map-container {
+            height: 500px;
+            background-color: #e9e9e9;
+            border-radius: 6px;
+        }
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .kpi-card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-subtle);
+            padding: 20px;
+            text-align: left;
+        }
+        .kpi-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .kpi-change {
+            font-size: 12px;
+            color: var(--secondary-green);
+            font-weight: 500;
+            margin-left: 5px;
+        }
+        .maintenance-info {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .optimization-card {
+            background-color: var(--card-background);
+        }
+        .optimization-card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+        .optimization-card p {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin-bottom: 20px;
+        }
+        .re-optimize-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .environmental-card {
+            background-color: #eaf6e9;
+            border: 1px solid #d4ecd3;
+        }
+        .environmental-card h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--secondary-green);
+            margin-bottom: 10px;
+        }
+        .progress-bar-container {
+            background-color: #c8e6c9;
+            border-radius: 5px;
+            height: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            background-color: var(--secondary-green);
+            height: 100%;
+            width: 50%;
+            border-radius: 5px;
+        }
+        .environmental-card p {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .plant-trees-btn {
+            background-color: var(--secondary-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .alerts-card h2 {
+            margin-top: 0;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        .alert-text-content {
+            font-size: 16px;
+            color: var(--text-medium);
+        }
+        .alert-time {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-left: 10px;
+        }
+        .alert-tag {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        .tag-warning { background-color: var(--warning-bg); color: var(--warning-text); }
+        .tag-danger { background-color: var(--danger-bg); color: var(--danger-text); }
+        .tag-success { background-color: var(--success-bg); color: var(--success-text); }
+        .tag-info { background-color: var(--info-bg); color: var(--info-text); }
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+                height: auto;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .dashboard-container {
+                padding: 10px;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>LogiTrack Pro Manager Dashboard</h1>
+        <button class="logout-btn" onclick="window.location.href='login.html';">Logout</button>
+    </div>
+    <div class="dashboard-container">
+        <div class="main-grid">
+            <div class="card map-card">
+                <h2>Live Fleet Overview</h2>
+                <p>Real-time view of warehouses, routes, and vehicle positions</p>
+                <div id="map-container"></div>
+            </div>
+            <div class="right-column">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <h3>Distance Saved</h3>
+                        <div class="kpi-value">2,847 km <span class="kpi-change">+12%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Fuel Saved</h3>
+                        <div class="kpi-value">1,234 L <span class="kpi-change">+8%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>CO<sub>2</sub> Reduced</h3>
+                        <div class="kpi-value">3.2 tons <span class="kpi-change">+15%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Active Vehicles</h3>
+                        <div class="kpi-value">24</div>
+                        <div class="maintenance-info">2 in maintenance</div>
+                    </div>
+                </div>
+                <div class="card optimization-card">
+                    <h3>Quantum Optimization</h3>
+                    <p>Run AI powered route optimization to improve efficiency</p>
+                    <button class="re-optimize-btn">Re-Optimize Routes</button>
+                </div>
+                <div class="card environmental-card">
+                    <h3>Environmental Impact</h3>
+                    <div style="font-size: 14px; color: var(--text-medium); margin-bottom: 5px;">CO<sub>2</sub> to Trees Conversion</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar"></div>
+                    </div>
+                    <p>3.2 tons CO<sub>2</sub> = 25 trees needed</p>
+                    <button class="plant-trees-btn">Plant Trees</button>
+                </div>
+            </div>
+        </div>
+        <div class="card alerts-card" style="margin-top: 20px;">
+            <h2>Live Alerts</h2>
+            <div class="alert-item">
+                <div class="alert-text-content">Traffic delay on Route A-3 <span class="alert-time">5 min ago</span></div>
+                <div class="alert-tag tag-warning">warning</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-text-content">Vehicle #102 breakdown reported <span class="alert-time">12 min ago</span></div>
+                <div class="alert-tag tag-danger">danger</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-text-content">Delivery completed - Zone B <span class="alert-time">18 min ago</span></div>
+                <div class="alert-tag tag-success">success</div>
+            </div>
+            <div class="alert-item">
+                <div class="alert-text-content">New optimization available <span class="alert-time">25 min ago</span></div>
+                <div class="alert-tag tag-info">info</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map at Tadepalligudem, West Godavari
+        var map = L.map('map-container').setView([16.8333, 81.5167], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add warehouse marker
+        L.marker([16.8333, 81.5167]).addTo(map)
+            .bindPopup('Tadepalligudem Warehouse')
+            .openPopup();
+    </script>
+</body>
+</html>
