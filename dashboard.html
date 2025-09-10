@@ -105,12 +105,21 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
+        /* New styles for hover effect on KPI cards */
         .kpi-card {
             background-color: var(--card-background);
             border-radius: 8px;
             box-shadow: 0 2px 4px var(--shadow-subtle);
             padding: 20px;
             text-align: left;
+            transition: all 0.3s ease;
+            position: relative; /* Needed for positioning the details div */
+            overflow: hidden; /* Hides content that overflows */
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px var(--shadow-light);
+            cursor: pointer;
         }
         .kpi-card h3 {
             margin: 0 0 5px 0;
@@ -229,6 +238,36 @@
         .tag-danger { background-color: var(--danger-bg); color: var(--danger-text); }
         .tag-success { background-color: var(--success-bg); color: var(--success-text); }
         .tag-info { background-color: var(--info-bg); color: var(--info-text); }
+
+        /* Styles for the hover details */
+        .kpi-details {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
+        }
+        .kpi-card:hover .kpi-details {
+            opacity: 1;
+            max-height: 200px; /* A fixed height to allow for the transition */
+        }
+        .kpi-details ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .kpi-details li {
+            font-size: 14px;
+            color: var(--text-medium);
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .kpi-details li:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -270,19 +309,55 @@
                     <div class="kpi-card">
                         <h3>Distance Saved</h3>
                         <div class="kpi-value">2,847 km <span class="kpi-change">+12%</span></div>
+                        <!-- Detailed content to be shown on hover -->
+                        <div class="kpi-details">
+                            <ul>
+                                <li>Vehicle #101: 520 km saved</li>
+                                <li>Vehicle #102: 480 km saved</li>
+                                <li>Vehicle #103: 710 km saved</li>
+                                <li>Vehicle #104: 1,137 km saved</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="kpi-card">
                         <h3>Fuel Saved</h3>
                         <div class="kpi-value">1,234 L <span class="kpi-change">+8%</span></div>
+                        <!-- Detailed content to be shown on hover -->
+                        <div class="kpi-details">
+                            <ul>
+                                <li>Vehicle #101: 250 L saved</li>
+                                <li>Vehicle #102: 215 L saved</li>
+                                <li>Vehicle #103: 380 L saved</li>
+                                <li>Vehicle #104: 389 L saved</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="kpi-card">
                         <h3>CO<sub>2</sub> Reduced</h3>
                         <div class="kpi-value">3.2 tons <span class="kpi-change">+15%</span></div>
+                        <!-- Detailed content to be shown on hover -->
+                        <div class="kpi-details">
+                            <ul>
+                                <li>Vehicle #101: 0.7 tons reduced</li>
+                                <li>Vehicle #102: 0.6 tons reduced</li>
+                                <li>Vehicle #103: 0.9 tons reduced</li>
+                                <li>Vehicle #104: 1.0 tons reduced</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="kpi-card">
                         <h3>Active Vehicles</h3>
                         <div class="kpi-value">24</div>
                         <div class="maintenance-info">2 in maintenance</div>
+                        <!-- Detailed content to be shown on hover -->
+                        <div class="kpi-details">
+                            <ul>
+                                <li>Vehicle #101: On Route (Delayed)</li>
+                                <li>Vehicle #102: En-route to Warehouse</li>
+                                <li>Vehicle #103: Delivering to Zone B</li>
+                                <li>Vehicle #104: Idle (Waiting for dispatch)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="card optimization-card">
